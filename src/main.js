@@ -13,7 +13,7 @@ const form = document.querySelector('.form');
 
 form.addEventListener('submit', onSearch);
 
-function onSearch(event) {
+async function onSearch(event) {
   event.preventDefault();
 
   const query = event.target.elements['search-text'].value.trim();
@@ -28,33 +28,29 @@ function onSearch(event) {
 
   clearGallery();
   showLoader();
-
-  getImagesByQuery(query)
-    .then(data => {
-      if (data.hits.length === 0) {
-        iziToast.error({
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-          position: 'topRight',
-        });
-        return;
-      }
-
-      createGallery(data.hits);
-    })
-    .catch(error => {
-      console.error('Error fetching images:', error);
-
+  try {
+    const data = await getImagesByQuery(query);
+    if (data.hits.length === 0) {
       iziToast.error({
-        message: 'Cannot fetch images. Please try again later.',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
         position: 'topRight',
       });
+      return;
+    }
 
-      throw error;
-    })
-    .finally(() => {
-      hideLoader();
+    createGallery(data.hits);
+    form.reset();
+  } catch (error) {
+    console.error('Error fetching images:', error);
+
+    iziToast.error({
+      message: 'Cannot fetch images. Please try again later.',
+      position: 'topRight',
     });
+  } finally {
+    hideLoader();
+  }
 
   form.reset();
 }
