@@ -1,6 +1,5 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -8,15 +7,14 @@ const gallery = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
 const loadMoreBtn = document.querySelector('.btn-load-more');
 
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
+let lightboxInstance = null;
 
 // =========================
 // ГАЛЕРЕЯ
 // =========================
 export function createGallery(images) {
+  if (!gallery) return;
+
   const markup = images
     .map(
       image => `
@@ -40,11 +38,20 @@ export function createGallery(images) {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
-  lightbox.refresh();
+
+  // Ініціалізація або оновлення lightbox
+  if (lightboxInstance) {
+    lightboxInstance.refresh();
+  } else {
+    lightboxInstance = new SimpleLightbox('.gallery a', {
+      captionsData: 'alt',
+      captionDelay: 250,
+    });
+  }
 }
 
 export function clearGallery() {
-  gallery.innerHTML = '';
+  if (gallery) gallery.innerHTML = '';
 }
 
 // =========================
