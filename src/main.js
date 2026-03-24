@@ -8,10 +8,8 @@ import {
   hideLoadMore,
   disableLoadMoreBtn,
   enableLoadMoreBtn,
+  showToast,
 } from './js/render-functions.js';
-
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
 
 const form = document.querySelector('.form');
 const loadMoreBtn = document.querySelector('.btn-load-more');
@@ -29,62 +27,39 @@ async function onSearch(event) {
   event.preventDefault();
 
   query = event.target.elements['search-text'].value.trim();
-
-  if (!query) {
-    iziToast.warning({
-      message: 'Please enter a search query',
-      position: 'topRight',
-    });
-    return;
-  }
+  if (!query) return showToast('Please enter a search query', 'warning');
 
   page = 1;
   clearGallery();
   hideLoadMore();
-
   showLoader();
 
   try {
     const data = await getImagesByQuery(query, page);
 
     if (data.hits.length === 0) {
-      iziToast.error({
-        message: 'Sorry, there are no images matching your search query.',
-        position: 'topRight',
-      });
-      return;
+      return showToast(
+        'Sorry, there are no images matching your search query.',
+        'error'
+      );
     }
 
     totalHits = data.totalHits;
-
     createGallery(data.hits);
+    scrollToTop();
 
-    // 📜 Плавний скрол
-    const galleryItem = document.querySelector('.gallery').firstElementChild;
-    if (galleryItem) {
-      const { height } = galleryItem.getBoundingClientRect();
-      window.scrollBy({ top: height * 2, behavior: 'smooth' });
-    }
-
-    // ✅ показуємо кнопку якщо є ще
-    if (totalHits > perPage) {
-      showLoadMore();
-    }
-  } catch (error) {
-    iziToast.error({
-      message: 'Cannot fetch images. Try again later.',
-      position: 'topRight',
-    });
+    if (totalHits > perPage) showLoadMore();
+  } catch {
+    showToast('Cannot fetch images. Try again later.', 'error');
   } finally {
     hideLoader();
     form.reset();
   }
 }
 
-// ➕ Load more
+// ➕ Load More
 async function onLoadMore() {
   page += 1;
-
   disableLoadMoreBtn();
   showLoader();
 
@@ -92,31 +67,25 @@ async function onLoadMore() {
     const data = await getImagesByQuery(query, page);
 
     createGallery(data.hits);
+    scrollToTop();
 
-    // ✅ скрол
-    const galleryItem = document.querySelector('.gallery').firstElementChild;
-    if (galleryItem) {
-      const { height } = galleryItem.getBoundingClientRect();
-      window.scrollBy({ top: height * 2, behavior: 'smooth' });
-    }
-
-    const loadedImages = page * perPage;
-
-    if (loadedImages >= totalHits) {
+    if (page * perPage >= totalHits) {
       hideLoadMore();
-
-      iziToast.info({
-        message: "We're sorry, but you've reached the end of search results.",
-        position: 'topRight',
-      });
+      showToast("You've reached the end of search results.", 'info');
     }
-  } catch (error) {
-    iziToast.error({
-      message: 'Error loading more images.',
-      position: 'topRight',
-    });
+  } catch {
+    showToast('Error loading more images.', 'error');
   } finally {
     enableLoadMoreBtn();
     hideLoader();
+  }
+}
+
+// 📜 Плавний скрол до нових зображень
+function scrollToTop() {
+  const galleryItem = document.querySelector('.gallery').firstElementChild;
+  if (galleryItem) {
+    const { height } = galleryItem.getBoundingClientRect();
+    window.scrollBy({ top: height * 2, behavior: 'smooth' });
   }
 }

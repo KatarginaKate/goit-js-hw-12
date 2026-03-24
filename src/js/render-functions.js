@@ -1,15 +1,21 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+
 const gallery = document.querySelector('.gallery');
 const loader = document.querySelector('.loader');
+const loadMoreBtn = document.querySelector('.btn-load-more');
 
 const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
 
-// створення галереї
+// =========================
+// ГАЛЕРЕЯ
+// =========================
 export function createGallery(images) {
   const markup = images
     .map(
@@ -22,7 +28,6 @@ export function createGallery(images) {
       alt="${image.tags}"
     />
   </a>
-
   <div class="info">
     <p class="info-item"><b>Likes</b> ${image.likes}</p>
     <p class="info-item"><b>Views</b> ${image.views}</p>
@@ -35,36 +40,55 @@ export function createGallery(images) {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
-
   lightbox.refresh();
 }
 
 export function clearGallery() {
   gallery.innerHTML = '';
 }
+
+// =========================
+// ЛОАДЕР
+// =========================
 export function showLoader() {
-  loader.classList.remove('is-hidden');
+  if (loader) loader.classList.remove('is-hidden');
 }
 
 export function hideLoader() {
-  loader.classList.add('is-hidden');
+  if (loader) loader.classList.add('is-hidden');
 }
 
-const loadMoreBtn = document.querySelector('.btn-load-more');
-
-export function showLoadMoreBtn() {
-  loadMoreBtn.classList.remove('is-hidden');
+// =========================
+// КНОПКА LOAD MORE
+// =========================
+export function showLoadMore() {
+  if (loadMoreBtn) {
+    loadMoreBtn.classList.remove('is-hidden');
+    loadMoreBtn.disabled = false;
+  }
 }
 
-export function hideLoadMoreBtn() {
-  loadMoreBtn.classList.add('is-hidden');
+export function hideLoadMore() {
+  if (loadMoreBtn) {
+    loadMoreBtn.classList.add('is-hidden');
+    loadMoreBtn.disabled = true;
+  }
 }
 
 export function disableLoadMoreBtn() {
-  loadMoreBtn.disabled = true;
+  if (loadMoreBtn) loadMoreBtn.disabled = true;
 }
 
 export function enableLoadMoreBtn() {
-  loadMoreBtn.disabled = false;
+  if (loadMoreBtn) loadMoreBtn.disabled = false;
 }
 
+// =========================
+// TOAST
+// =========================
+export function showToast(message, type = 'info') {
+  iziToast[type]({
+    message,
+    position: 'topRight',
+  });
+}
