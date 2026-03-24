@@ -6,25 +6,20 @@ const BASE_URL = 'https://pixabay.com/api/';
 let currentPage = 1;
 let lastQuery = '';
 
-export async function getImagesByQuery(query) {
-  if (query !== lastQuery) {
-    lastQuery = query;
-    currentPage = 1;
-  }
-
+export async function getImagesByQuery(query, page = 1) {
+  
   const params = {
     key: API_KEY,
     q: query,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    page: currentPage,
+    page: page,
     per_page: 15,
   };
 
   try {
     const response = await axios.get(BASE_URL, { params });
-    currentPage += 1;
 
     return response.data;
   } catch (error) {
