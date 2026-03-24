@@ -4,6 +4,10 @@ import {
   clearGallery,
   showLoader,
   hideLoader,
+  showLoadMore,
+  hideLoadMore,
+  disableLoadMoreBtn,
+  enableLoadMoreBtn,
 } from './js/render-functions.js';
 
 import iziToast from 'izitoast';
@@ -36,7 +40,7 @@ async function onSearch(event) {
 
   page = 1;
   clearGallery();
-  loadMoreBtn.classList.add('is-hidden');
+  hideLoadMore();
 
   showLoader();
 
@@ -57,18 +61,14 @@ async function onSearch(event) {
 
     // 📜 Плавний скрол
     const galleryItem = document.querySelector('.gallery').firstElementChild;
-
     if (galleryItem) {
       const { height } = galleryItem.getBoundingClientRect();
-
-      window.scrollBy({
-        top: height * 2,
-        behavior: 'smooth',
-      });
+      window.scrollBy({ top: height * 2, behavior: 'smooth' });
     }
+
     // ✅ показуємо кнопку якщо є ще
     if (totalHits > perPage) {
-      loadMoreBtn.classList.remove('is-hidden');
+      showLoadMore();
     }
   } catch (error) {
     iziToast.error({
@@ -77,9 +77,8 @@ async function onSearch(event) {
     });
   } finally {
     hideLoader();
+    form.reset();
   }
-
-  form.reset();
 }
 
 // ➕ Load more
@@ -96,20 +95,15 @@ async function onLoadMore() {
 
     // ✅ скрол
     const galleryItem = document.querySelector('.gallery').firstElementChild;
-
     if (galleryItem) {
       const { height } = galleryItem.getBoundingClientRect();
-
-      window.scrollBy({
-        top: height * 2,
-        behavior: 'smooth',
-      });
+      window.scrollBy({ top: height * 2, behavior: 'smooth' });
     }
 
     const loadedImages = page * perPage;
 
     if (loadedImages >= totalHits) {
-      hideLoadMoreBtn();
+      hideLoadMore();
 
       iziToast.info({
         message: "We're sorry, but you've reached the end of search results.",
