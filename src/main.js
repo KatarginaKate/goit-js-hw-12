@@ -20,7 +20,6 @@ let perPage = 15;
 form.addEventListener('submit', onSearch);
 loadMoreBtn.addEventListener('click', onLoadMore);
 
-
 // 🔍 Пошук
 async function onSearch(event) {
   event.preventDefault();
@@ -46,8 +45,7 @@ async function onSearch(event) {
 
     if (data.hits.length === 0) {
       iziToast.error({
-        message:
-          'Sorry, there are no images matching your search query.',
+        message: 'Sorry, there are no images matching your search query.',
         position: 'topRight',
       });
       return;
@@ -57,11 +55,23 @@ async function onSearch(event) {
 
     createGallery(data.hits);
 
+    createGallery(data.hits);
+
+    // 📜 Плавний скрол
+    const galleryItem = document.querySelector('.gallery').firstElementChild;
+
+    if (galleryItem) {
+      const { height } = galleryItem.getBoundingClientRect();
+
+      window.scrollBy({
+        top: height * 2,
+        behavior: 'smooth',
+      });
+    }
     // ✅ показуємо кнопку якщо є ще
     if (totalHits > perPage) {
       loadMoreBtn.classList.remove('is-hidden');
     }
-
   } catch (error) {
     iziToast.error({
       message: 'Cannot fetch images. Try again later.',
@@ -73,7 +83,6 @@ async function onSearch(event) {
 
   form.reset();
 }
-
 
 // ➕ Load more
 async function onLoadMore() {
@@ -98,7 +107,6 @@ async function onLoadMore() {
         position: 'topRight',
       });
     }
-
   } catch (error) {
     iziToast.error({
       message: 'Error loading more images.',
