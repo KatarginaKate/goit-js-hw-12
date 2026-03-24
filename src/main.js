@@ -58,9 +58,51 @@ async function onSearch(event) {
 }
 
 // ➕ Load More
+// 🔍 Пошук
+async function onSearch(event) {
+  event.preventDefault();
+
+  query = event.target.elements['search-text'].value.trim();
+  if (!query) return showToast('Please enter a search query', 'warning');
+
+  page = 1;
+  clearGallery();
+  hideLoadMore();
+  showLoader();
+
+  try {
+    const data = await getImagesByQuery(query, page);
+
+    if (data.hits.length === 0) {
+      return showToast(
+        'Sorry, there are no images matching your search query.',
+        'error'
+      );
+    }
+
+    totalHits = data.totalHits;
+    createGallery(data.hits);
+    scrollToTop();
+
+    if (totalHits > perPage) {
+      showLoadMore(); // більше сторінок є
+    } else {
+      // Якщо всі результати помістилися на одну сторінку
+      showToast("You've reached the end of search results.", 'info');
+    }
+  } catch {
+    showToast('Cannot fetch images. Try again later.', 'error');
+  } finally {
+    hideLoader();
+    form.reset();
+  }
+}
+
+// ➕ Load More
 async function onLoadMore() {
   page += 1;
   disableLoadMoreBtn();
+  hideLoadMore(); // приховуємо під час завантаження
   showLoader();
 
   try {
@@ -69,7 +111,13 @@ async function onLoadMore() {
     createGallery(data.hits);
     scrollToTop();
 
-    if (page * perPage >= totalHits) {
+    const loadedImages = page * perPage;
+
+    if (loadedImages < totalHits) {
+      // Є ще зображення
+      showLoadMore();
+    } else {
+      // Дійшли до кінця результатів
       hideLoadMore();
       showToast("You've reached the end of search results.", 'info');
     }
