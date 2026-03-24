@@ -49,3 +49,22 @@ export function showLoader() {
 export function hideLoader() {
   loader.classList.add('is-hidden');
 }
+
+const loadMoreBtn = document.querySelector('.btn-load-more');
+
+export function showLoadMoreBtn() {
+  loadMoreBtn.classList.remove('is-hidden');
+}
+
+export function hideLoadMoreBtn() {
+  loadMoreBtn.classList.add('is-hidden');
+}
+
+export function disableLoadMoreBtn() {
+  loadMoreBtn.disabled = true;
+}
+
+export function enableLoadMoreBtn() {
+  loadMoreBtn.disabled = false;
+}
+

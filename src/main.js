@@ -55,8 +55,6 @@ async function onSearch(event) {
 
     createGallery(data.hits);
 
-    createGallery(data.hits);
-
     // 📜 Плавний скрол
     const galleryItem = document.querySelector('.gallery').firstElementChild;
 
@@ -88,6 +86,7 @@ async function onSearch(event) {
 async function onLoadMore() {
   page += 1;
 
+  disableLoadMoreBtn();
   showLoader();
 
   try {
@@ -95,12 +94,22 @@ async function onLoadMore() {
 
     createGallery(data.hits);
 
-    // 🔢 скільки вже завантажено
+    // ✅ скрол
+    const galleryItem = document.querySelector('.gallery').firstElementChild;
+
+    if (galleryItem) {
+      const { height } = galleryItem.getBoundingClientRect();
+
+      window.scrollBy({
+        top: height * 2,
+        behavior: 'smooth',
+      });
+    }
+
     const loadedImages = page * perPage;
 
-    // ❌ якщо більше нема
     if (loadedImages >= totalHits) {
-      loadMoreBtn.classList.add('is-hidden');
+      hideLoadMoreBtn();
 
       iziToast.info({
         message: "We're sorry, but you've reached the end of search results.",
@@ -113,6 +122,7 @@ async function onLoadMore() {
       position: 'topRight',
     });
   } finally {
+    enableLoadMoreBtn();
     hideLoader();
   }
 }
